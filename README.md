@@ -29,7 +29,7 @@ Once you've printed the page, follow this assembly guide from <a href="https://v
 > a promotional zine for Hacksburg, a makerspace in Blacksburg, VA.
 
 # Z.I.Y. (Zine it Yourself)
-1. open <a href="https://hunterirving.github.io/zine.html/template.html/">template.html</a> in your text editor of choice
+1. open [<a href="https://hunterirving.github.io/zine.html/template.html">template.html</a>](https://hunterirving.github.io/zine.html/template.html) in your text editor of choice
 2. write some HTML within the existing ```.zine-page-content``` divs<br>
 3. open the modified file in your favorite web browser
 4. hit print!
