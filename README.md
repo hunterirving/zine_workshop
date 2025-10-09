@@ -13,7 +13,7 @@ open ```zine.html``` in your web browser (or <a href="https://hunterirving.githu
 
 ## Assembly Instructions
 
-Once you've printed the page, follow this assembly guide from <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">Virginia Center for the Book</a> to cut and fold the zine to shape:
+Once you've printed the page, follow this assembly guide from <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">Virginia Center for the Book</a> (or this <a href="https://www.youtube.com/watch?v=ceAoHHPQ49Q">video guide</a> by mothcub on YouTube) to cut and fold the zine to shape:
 
 <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">
     <img src="resources/readme_images/folding-guide.png">
