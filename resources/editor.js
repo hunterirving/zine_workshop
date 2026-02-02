@@ -299,6 +299,8 @@ function navigateSpread(delta) {
 		currentSpread = newSpread;
 		updateSpreadIndicator();
 		updatePreview();
+		// Refocus preview so keyboard navigation continues to work
+		preview.focus();
 	}
 }
 
@@ -338,6 +340,10 @@ window.addEventListener('message', function(event) {
 		navigateSpread(-1);
 	} else if (event.data === 'nextSpread') {
 		navigateSpread(1);
+	} else if (event.data === 'saveFile') {
+		window.saveFile();
+	} else if (event.data === 'saveFileWithViewer') {
+		window.saveFileWithViewer();
 	}
 });
 
@@ -431,7 +437,7 @@ function updatePreview() {
 				doc.defaultView.addEventListener('resize', scaleToFit);
 			}
 
-			// Add keyboard listener for arrow key navigation and print
+			// Add keyboard listener for navigation and shortcuts
 			doc.addEventListener('keydown', function(e) {
 				if (e.key === 'ArrowLeft') {
 					e.preventDefault();
@@ -442,6 +448,12 @@ function updatePreview() {
 				} else if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
 					e.preventDefault();
 					window.print();
+				} else if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+					e.preventDefault();
+					parent.postMessage('saveFile', '*');
+				} else if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+					e.preventDefault();
+					parent.postMessage('saveFileWithViewer', '*');
 				}
 			});
 
@@ -572,6 +584,9 @@ const NAV_BUTTON_STYLES = `
 	justify-content: center;
 `;
 
+// Height of nav bar for layout calculations
+const NAV_HEIGHT = 60;
+
 // Generate standalone viewer CSS and JS (matches preview pane rendering)
 function generateViewerCode() {
 	const css = `
@@ -587,6 +602,7 @@ function generateViewerCode() {
 				display: flex !important;
 				justify-content: center !important;
 				align-items: center !important;
+				padding-bottom: ${NAV_HEIGHT}px !important;
 			}
 			body > *:not(.zine-spread-container):not(.zine-nav) {
 				display: none !important;
@@ -601,6 +617,7 @@ function generateViewerCode() {
 				bottom: 0;
 				left: 0;
 				right: 0;
+				height: ${NAV_HEIGHT}px;
 				${NAV_BUTTON_CSS}
 				background: transparent;
 			}
@@ -609,11 +626,18 @@ function generateViewerCode() {
 			}
 			.zine-nav button:hover:not(:disabled) { background: rgba(255,255,255,0.25); }
 			.zine-nav button:disabled { opacity: 0.3; cursor: default; }
-			.zine-nav span { color: white; font-size: 14px; min-width: 100px; text-align: center; font-family: system-ui, sans-serif; }
+			.zine-nav span { color: white; font-size: 14px; min-width: 100px; text-align: center; font-family: monospace; }
 		}
 
 		@media print {
 			${ZINE_PRINT_CSS}
+		}
+
+		/* Hide content when viewport is very short */
+		@media screen and (max-height: 200px) {
+			.zine-spread-container, .zine-nav {
+				display: none !important;
+			}
 		}
 	`;
 
@@ -624,13 +648,14 @@ function generateViewerCode() {
 	const js = `
 		const SPREADS = ${spreadsJson};
 		const PAGE_IDS = ${pageIdsJson};
+		const NAV_HEIGHT = ${NAV_HEIGHT};
 		let currentSpread = 0;
 		let container;
 
 		function scaleToFit() {
 			if (!container) return;
 			const vw = document.documentElement.clientWidth;
-			const vh = document.documentElement.clientHeight;
+			const vh = document.documentElement.clientHeight - NAV_HEIGHT;
 			const spreadWidthPx = container.offsetWidth;
 			const spreadHeightPx = container.offsetHeight;
 			if (spreadWidthPx === 0 || spreadHeightPx === 0) return;
@@ -708,6 +733,47 @@ function generateViewerCode() {
 				else if ((e.metaKey || e.ctrlKey) && e.key === 'p') {
 					e.preventDefault();
 					window.print();
+				}
+				else if ((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'e')) {
+					e.preventDefault();
+					// Re-download this viewer file (clean version without dynamic elements)
+					// Move pages back to body and remove dynamic elements temporarily
+					PAGE_IDS.forEach(id => {
+						const page = document.getElementById(id);
+						if (page) {
+							page.style.display = '';
+							document.body.appendChild(page);
+						}
+					});
+					const tempContainer = document.querySelector('.zine-spread-container');
+					const tempNav = document.querySelector('.zine-nav');
+					if (tempContainer) tempContainer.remove();
+					if (tempNav) tempNav.remove();
+
+					const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+
+					// Restore dynamic elements
+					const newContainer = document.createElement('div');
+					newContainer.className = 'zine-spread-container';
+					document.body.appendChild(newContainer);
+					container = newContainer;
+
+					const newNav = document.createElement('div');
+					newNav.className = 'zine-nav';
+					newNav.innerHTML = '<button id="zine-prev" title="Previous spread">\\u2190</button><span id="zine-indicator"></span><button id="zine-next" title="Next spread">\\u2192</button>';
+					document.body.appendChild(newNav);
+					document.getElementById('zine-prev').addEventListener('click', () => navigate(-1));
+					document.getElementById('zine-next').addEventListener('click', () => navigate(1));
+
+					showSpread(currentSpread);
+
+					const blob = new Blob([html], { type: 'text/html' });
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = 'my-zine.html';
+					a.click();
+					URL.revokeObjectURL(url);
 				}
 			});
 
@@ -879,6 +945,14 @@ async function initializeCodeMirror() {
 	document.getElementById('nextSpread').addEventListener('click', () => navigateSpread(1));
 	updateSpreadIndicator();
 
+	// Focus preview when clicking anywhere in the preview pane (for keyboard nav)
+	previewPane.addEventListener('click', (e) => {
+		// Don't steal focus if clicking nav buttons
+		if (!e.target.closest('.spread-nav button')) {
+			preview.focus();
+		}
+	});
+
 	// Initial preview
 	updatePreview();
 
@@ -893,11 +967,19 @@ async function initializeCodeMirror() {
 
 	editorView.focus();
 
-	// Keyboard shortcuts
+	// Keyboard shortcuts (only when editor not focused, since CodeMirror handles its own)
 	document.addEventListener('keydown', function(e) {
+		// Skip if editor is focused - CodeMirror handles these
+		const editorHasFocus = editorView.hasFocus;
+
 		if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
 			e.preventDefault();
 			closeSearchPanel(editorView) || openSearchPanel(editorView);
+		}
+		// Export with viewer (Cmd+E) - only handle when editor not focused
+		if (!editorHasFocus && (e.metaKey || e.ctrlKey) && e.key === 'e') {
+			e.preventDefault();
+			window.saveFileWithViewer();
 		}
 		// Print the iframe content instead of the parent page
 		if ((e.metaKey || e.ctrlKey) && e.key === 'p') {

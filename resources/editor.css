@@ -61,6 +61,12 @@ body {
 	height: 100%;
 	font-family: monospace;
 	font-size: 21px;
+	outline: none;
+}
+
+.editor-pane:focus,
+.editor-pane:focus-within {
+	outline: none;
 }
 
 /* CodeMirror styling */
@@ -100,6 +106,51 @@ body {
 
 .cm-focused {
 	outline: none;
+}
+
+/* Remove any focus rings/borders from CodeMirror elements */
+.cm-editor,
+.cm-editor *,
+.cm-editor *:focus,
+.cm-scroller,
+.cm-scroller:focus,
+.cm-content,
+.cm-content:focus {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+/* Remove any focus indicators from CodeMirror gutters */
+.cm-gutters {
+	border-right: none !important;
+}
+
+/* Hide the selection layer border that can appear on the right edge */
+.cm-selectionLayer {
+	border: none !important;
+}
+
+/* Target the focus ring that appears next to scrollbar */
+.cm-scroller:focus-visible,
+.cm-editor:focus-visible,
+.cm-content:focus-visible {
+	outline: none !important;
+}
+
+/* Ensure no focus styling on any focusable element within editor */
+#editor *:focus {
+	outline: none !important;
+	box-shadow: none !important;
+	border-color: transparent !important;
+}
+
+/* Remove macOS focus ring */
+#editor {
+	-webkit-focus-ring-color: transparent;
+}
+
+#editor *:focus {
+	-webkit-focus-ring-color: transparent;
 }
 
 .cm-editor .cm-content,
