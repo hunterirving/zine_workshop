@@ -2,6 +2,7 @@
 let isAnimating = false;
 let currentSpreadIndex = 0;
 let pendingFlipQueue = [];
+let bookContainer = null;
 
 // Get animation state
 export function getIsAnimating() {
@@ -26,6 +27,7 @@ export function initPageFlip(container, doc) {
 	// Create the book structure
 	const book = doc.createElement('div');
 	book.className = 'zine-book';
+	bookContainer = book;
 
 	// Create all leaves (page pairs)
 	PAGE_LEAVES.forEach((leaf, index) => {
@@ -65,6 +67,42 @@ export function initPageFlip(container, doc) {
 
 	// Set initial state - all leaves closed, showing front cover
 	updateLeafStates(0, doc);
+	updateBookPosition(0, false);
+}
+
+// Update the book container horizontal position based on spread
+// Spreads 0 and 4 (single pages) should be centered, others at normal position
+function updateBookPosition(spreadIndex, animated = true) {
+	if (!bookContainer) return;
+
+	// Spread 0 (front cover): single right page, shift left to center
+	// Spread 4 (back cover): single left page, shift right to center
+	let shiftAmount = '0in';
+	if (spreadIndex === 0) {
+		shiftAmount = '-1.375in'; // Shift left by half a page width
+	} else if (spreadIndex === 4) {
+		shiftAmount = '1.375in'; // Shift right by half a page width
+	}
+
+	if (animated) {
+		bookContainer.style.transition = 'transform 0.6s cubic-bezier(0.645, 0.045, 0.355, 1.000)';
+	} else {
+		bookContainer.style.transition = 'none';
+	}
+
+	// Preserve any existing scale from scaleSpreadToFit
+	const currentTransform = bookContainer.style.transform || '';
+	const scaleMatch = currentTransform.match(/scale\([^)]+\)/);
+	const scale = scaleMatch ? scaleMatch[0] : '';
+
+	bookContainer.style.transform = scale ? `translateX(${shiftAmount}) ${scale}` : `translateX(${shiftAmount})`;
+
+	// Remove transition after animation completes
+	if (animated) {
+		setTimeout(() => {
+			bookContainer.style.transition = '';
+		}, 600);
+	}
 }
 
 // Update which leaves are open/closed based on current spread
@@ -111,6 +149,9 @@ function processNextFlip() {
 function executePageFlip(fromSpread, toSpread, container, doc, onComplete) {
 	isAnimating = true;
 	currentSpreadIndex = toSpread;
+
+	// Update book position synchronously with the flip animation
+	updateBookPosition(toSpread, true);
 
 	const direction = toSpread > fromSpread ? 'forward' : 'backward';
 	const leaves = doc.querySelectorAll('.zine-leaf');
@@ -211,4 +252,5 @@ export function animatePageFlip(fromSpread, toSpread, container, doc, onComplete
 export function setSpreadImmediate(spreadIndex, doc) {
 	currentSpreadIndex = spreadIndex;
 	updateLeafStates(spreadIndex, doc);
+	updateBookPosition(spreadIndex, false);
 }
