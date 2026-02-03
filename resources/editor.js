@@ -50,6 +50,7 @@ window.addEventListener('message', function(event) {
 			previewPane.style.setProperty('--grid-height', `${event.data.gridHeight}px`);
 			previewPane.style.setProperty('--spread-left', `${spreadLeft}px`);
 			previewPane.style.setProperty('--spread-top', `${spreadTop}px`);
+			previewPane.classList.add('grid-ready');
 		}
 	}
 });

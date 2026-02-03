@@ -45,6 +45,11 @@ body {
 	--spread-left: 0px;
 	--spread-top: 0px;
 	background:
+		linear-gradient(to bottom, #1a4d3a, #184534);
+}
+
+.preview-pane.grid-ready {
+	background:
 		linear-gradient(to right, #4a7a6a 1px, transparent 1px),
 		linear-gradient(to bottom, #4a7a6a 1px, transparent 1px),
 		linear-gradient(to bottom, #1a4d3a, #184534);
