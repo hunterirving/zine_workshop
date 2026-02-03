@@ -38,6 +38,9 @@ export const ZINE_PRINT_CSS = `
 	#back-cover { grid-row: 2; grid-column: 1; }
 	.zine-nav, .zine-empty, .spread-nav, .iframe-fullscreen-toggle, .zine-spread-container { display: contents !important; }
 	.zine-spread-container { transform: none !important; }
+	/* Hide flip animation elements for print - use original pages */
+	.zine-book { display: none !important; }
+	.page { display: block !important; }
 	a { color: black; }
 `;
 
