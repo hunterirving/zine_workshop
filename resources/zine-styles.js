@@ -171,6 +171,9 @@ export const ZINE_PAGE_CSS = `
 	.zine-empty:last-child {
 		border-left: none;
 	}
+	img {
+		max-width: 100%;
+	}
 `;
 
 // Generate CSS to show only the current spread

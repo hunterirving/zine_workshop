@@ -34,7 +34,7 @@ export function updateMainPageTitleAndFavicon(title, favicon) {
 	if (title) {
 		document.title = title;
 	} else {
-		document.title = 'zine.html';
+		document.title = 'zine workshop';
 	}
 	let faviconLink = document.querySelector('link[rel="icon"]');
 	if (!faviconLink) {
