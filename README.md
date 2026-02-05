@@ -1,10 +1,10 @@
 # if you have a printer, you're a publisher
 
-1. open <a href="https://hunterirving.github.io/zine_workshop/">zine workshop  ↗</a> in your web browser
+1. open <a href="https://hunterirving.github.io/zine_workshop/">zine workshop ↗</a> in your web browser
 2. flesh out the pages using HTML
 3. press ```⌘ + P``` to print an 8-page mini zine to one sheet of 8.5 x 11" legal paper
 
-<img src="resources/readme_images/zines.jpeg" width="600">
+<a href="https://hunterirving.github.io/zine_workshop/"><img src="resources/readme_images/zines.jpeg" width="600"></a>
 
 >[!NOTE]
 >for best results, in your system print dialog...
@@ -24,7 +24,7 @@ once you've printed your zine, follow this <a href="https://vabook.org/wp-conten
 >[!TIP]
 >once assembled, use a gluestick to increase your zine's structural stability (add glue to the back of the purple sections):
 
-<img src="resources/readme_images/glue_guide.png" width="400">
+<img src="resources/readme_images/glue_guide.png" width="600">
 
 # cool zine ideas:
 - comic book
