@@ -1,10 +1,112 @@
 import { ZINE_BOILERPLATE, getBoilerplateCursorPos } from './constants.js';
 import { loadContent, loadEditorSettings, saveEditorSetting } from './storage.js';
+import { getAvailableFontFamilies } from './font-registry.js';
 
 let lineNumbersCompartment;
 let lineWrappingCompartment;
 let showLineNumbers = false;
 let enableLineWrapping = false;
+
+// Font picker dropdown (custom, not CodeMirror autocompletion)
+
+const fontFamilies = getAvailableFontFamilies();
+let fontPickerState = null; // { from, to, selectedIndex, tooltip }
+let updatePreviewCb = null;
+
+function getFontValueRange(state) {
+	const pos = state.selection.main.head;
+	const line = state.doc.lineAt(pos);
+	const text = line.text;
+	const propMatch = text.match(/font-family:/i);
+	if (!propMatch) return null;
+	// anchorPos is right after "font-family:" (for dropdown positioning)
+	const anchorPos = line.from + propMatch.index + propMatch[0].length;
+	// valueStart skips any whitespace after the colon
+	const afterColon = text.slice(propMatch.index + propMatch[0].length);
+	const leadingSpace = afterColon.match(/^\s*/)[0].length;
+	const valueStart = anchorPos + leadingSpace;
+	const afterValue = text.slice(valueStart - line.from);
+	const endMatch = afterValue.match(/^[^;"]*;?/);
+	const valueEnd = valueStart + (endMatch ? endMatch[0].length : 0);
+	return { from: valueStart, to: valueEnd, anchorPos };
+}
+
+function applyFont(view, fontName) {
+	const range = getFontValueRange(view.state);
+	if (!range) return;
+	const needsSpace = range.from === range.anchorPos;
+	const text = (needsSpace ? ' ' : '') + `'${fontName}';`;
+	view.dispatch({
+		changes: { from: range.from, to: range.to, insert: text },
+		selection: { anchor: range.from + text.length },
+	});
+	// Immediate preview (bypass debounce)
+	clearTimeout(window.updateTimer);
+	if (updatePreviewCb) updatePreviewCb(view.state.doc.toString());
+}
+
+function openFontPicker(view) {
+	fontPickerState = { selectedIndex: 0 };
+	applyFont(view, fontFamilies[0]);
+	renderFontPicker(view);
+}
+
+function closeFontPicker(view) {
+	fontPickerState = null;
+	const existing = document.querySelector('.font-picker-dropdown');
+	if (existing) existing.remove();
+}
+
+function renderFontPicker(view) {
+	if (!fontPickerState) return;
+
+	let dropdown = document.querySelector('.font-picker-dropdown');
+	if (!dropdown) {
+		dropdown = document.createElement('div');
+		dropdown.className = 'font-picker-dropdown';
+		document.getElementById('editor').appendChild(dropdown);
+	}
+
+	// Position anchored to right after "font-family:"
+	const range = getFontValueRange(view.state);
+	const anchorCoords = range && view.coordsAtPos(range.anchorPos);
+	if (anchorCoords) {
+		const editorRect = view.dom.getBoundingClientRect();
+		dropdown.style.left = `${anchorCoords.left - editorRect.left}px`;
+		dropdown.style.top = `${anchorCoords.bottom - editorRect.top + 4}px`;
+	}
+
+	// Build list
+	dropdown.innerHTML = '';
+	const ul = document.createElement('ul');
+	fontFamilies.forEach((font, i) => {
+		const li = document.createElement('li');
+		li.textContent = font;
+		if (i === fontPickerState.selectedIndex) li.classList.add('selected');
+		li.addEventListener('mousedown', (e) => {
+			e.preventDefault();
+			fontPickerState.selectedIndex = i;
+			applyFont(view, font);
+			closeFontPicker(view);
+		});
+		ul.appendChild(li);
+	});
+	dropdown.appendChild(ul);
+
+	// Scroll selected into view
+	const selectedLi = ul.children[fontPickerState.selectedIndex];
+	if (selectedLi) selectedLi.scrollIntoView({ block: 'nearest' });
+}
+
+function moveFontPickerSelection(view, delta) {
+	if (!fontPickerState) return false;
+	const newIndex = fontPickerState.selectedIndex + delta;
+	if (newIndex < 0 || newIndex >= fontFamilies.length) return true;
+	fontPickerState.selectedIndex = newIndex;
+	applyFont(view, fontFamilies[newIndex]);
+	renderFontPicker(view);
+	return true;
+}
 
 export function toggleLineNumbers(editorView) {
 	const {lineNumbers} = window.CodeMirror;
@@ -68,6 +170,8 @@ export async function initializeCodeMirror(saveToStorageCallback, updatePreviewC
 		return;
 	}
 
+	updatePreviewCb = updatePreviewCallback;
+
 	const {EditorView, EditorState, Compartment, keymap, defaultKeymap, indentWithTab, html, githubDark, indentUnit, placeholder, undo, redo, history, closeBrackets, search, searchKeymap, lineNumbers} = window.CodeMirror;
 
 	const customPhrases = EditorState.phrases.of({
@@ -92,6 +196,19 @@ export async function initializeCodeMirror(saveToStorageCallback, updatePreviewC
 			search(),
 			closeBrackets(),
 			keymap.of([
+				// Font picker keys (only active when picker is open)
+				{key: "ArrowDown", run: (view) => moveFontPickerSelection(view, 1)},
+				{key: "ArrowUp", run: (view) => moveFontPickerSelection(view, -1)},
+				{key: "Enter", run: (view) => {
+					if (!fontPickerState) return false;
+					closeFontPicker(view);
+					return true;
+				}},
+				{key: "Escape", run: (view) => {
+					if (!fontPickerState) return false;
+					closeFontPicker(view);
+					return true;
+				}},
 				{key: "Mod-z", run: undo},
 				{key: "Mod-y", run: redo},
 				{key: "Mod-Shift-z", run: redo},
@@ -104,6 +221,31 @@ export async function initializeCodeMirror(saveToStorageCallback, updatePreviewC
 				...defaultKeymap
 			]),
 			html(),
+			// Detect when user types "font-family:" and open the picker
+			EditorView.updateListener.of((update) => {
+				if (update.docChanged) {
+					const content = update.state.doc.toString();
+					clearTimeout(window.updateTimer);
+					window.updateTimer = setTimeout(() => updatePreviewCallback(content), 600);
+					saveToStorageCallback(content);
+
+					// Check if cursor is right after font-family:
+					if (!fontPickerState) {
+						const range = getFontValueRange(update.state);
+						if (range) {
+							const valueText = update.state.doc.sliceString(range.from, range.to).trim();
+							if (valueText === '' || valueText === ';') {
+								openFontPicker(update.view);
+							}
+						}
+					}
+				}
+				// Close picker if cursor moves away from font-family line
+				if (fontPickerState && update.selectionSet) {
+					const range = getFontValueRange(update.state);
+					if (!range) closeFontPicker(update.view);
+				}
+			}),
 			EditorView.inputHandler.of((view, from, to, text) => {
 				if (text !== '>') return false;
 				const before = view.state.doc.sliceString(Math.max(0, from - 20), from);
@@ -128,14 +270,6 @@ export async function initializeCodeMirror(saveToStorageCallback, updatePreviewC
 			githubDark,
 			indentUnit.of("\t"),
 			placeholder("Type <!> to insert zine boilerplate..."),
-			EditorView.updateListener.of((update) => {
-				if (update.docChanged) {
-					const content = update.state.doc.toString();
-					clearTimeout(window.updateTimer);
-					window.updateTimer = setTimeout(() => updatePreviewCallback(content), 600);
-					saveToStorageCallback(content);
-				}
-			}),
 			EditorView.contentAttributes.of({
 				'autocomplete': 'off',
 				'autocorrect': 'off',

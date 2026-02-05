@@ -20,7 +20,7 @@ await esbuild.build({
 			export {EditorView, keymap, placeholder, lineNumbers, Decoration} from "@codemirror/view";
 			export {EditorState, Compartment} from "@codemirror/state";
 			export {defaultKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, history, historyKeymap} from "@codemirror/commands";
-			export {closeBrackets, closeBracketsKeymap} from "@codemirror/autocomplete";
+			export {closeBrackets, closeBracketsKeymap, autocompletion, acceptCompletion, completionKeymap, completionStatus, currentCompletions, selectedCompletionIndex, startCompletion, closeCompletion, moveCompletionSelection, setSelectedCompletion} from "@codemirror/autocomplete";
 			export {html} from "@codemirror/lang-html";
 			export {githubDark} from "@fsegurai/codemirror-theme-github-dark";
 			export {indentUnit} from "@codemirror/language";
@@ -31,7 +31,7 @@ await esbuild.build({
 	},
 	bundle: true,
 	format: 'esm',
-	outfile: join(__dirname, '..', 'codemirror-bundle.js'),
+	outfile: join(__dirname, '..', 'resources', 'codemirror-bundle.js'),
 	minify: true,
 	target: ['es2020'],
 });
