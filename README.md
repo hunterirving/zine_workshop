@@ -4,7 +4,7 @@
 2. flesh out the pages using HTML
 3. press ```⌘ + P``` to print an 8-page mini zine to one sheet of 8.5 x 11" legal paper
 
-<img src="resources/readme_images/zines.jpeg">
+<img src="resources/readme_images/zines.jpeg" width="600">
 
 >[!NOTE]
 >for best results, in your system print dialog...
@@ -14,18 +14,17 @@
 
 ## assembly
 
-once you've printed your zine, follow this assembly guide from <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">Virginia Center for the Book</a> to cut and fold it to shape:
-
+once you've printed your zine, follow this <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">assembly guide</a> from Virginia Center for the Book to cut and fold it to shape:
 
 <a href="https://vabook.org/wp-content/uploads/sites/16/2020/03/Where-Im-From-zine-folding-instructions.pdf">
-    <img src="resources/readme_images/folding_guide.png">
+    <img src="resources/readme_images/folding_guide.png" width="600">
 </a>
+<br><br>
 
 >[!TIP]
 >once assembled, use a gluestick to increase your zine's structural stability (add glue to the back of the purple sections):
->
-><img src="resources/readme_images/glue_guide.png">
 
+<img src="resources/readme_images/glue_guide.png" width="400">
 
 # cool zine ideas:
 - comic book
