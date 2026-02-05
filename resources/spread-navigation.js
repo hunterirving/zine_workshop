@@ -79,11 +79,9 @@ export function toggleFullscreen() {
 	if (isFullscreen) {
 		previewPane.classList.add('fullscreen');
 		editorPane.classList.add('hidden');
-		preview.style.height = window.innerHeight + 'px';
 	} else {
 		previewPane.classList.remove('fullscreen');
 		editorPane.classList.remove('hidden');
-		preview.style.height = '';
 	}
 
 	try {
