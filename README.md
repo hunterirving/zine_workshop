@@ -8,7 +8,6 @@
 
 >[!NOTE]
 >for best results, in your system print dialog...
->- ensure Portrait orientation is selected
 >- set Margins to None or 0
 >- select "Scale 100%" rather than "Fit to page width"
 >- check "Print backgrounds" to ensure proper styling
