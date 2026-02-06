@@ -2,9 +2,11 @@
 
 <a href="https://hunterirving.github.io/zine_workshop/"><img src="resources/readme_images/screenshot.jpg" width="600"></a>
 
-1. open <a href="https://hunterirving.github.io/zine_workshop/">zine workshop ↗</a> in your web browser
-2. use HTML to flesh out the pages
-3. press ```⌘ + P``` to print an 8-page mini zine to one sheet of 8.5 x 11" legal paper
+#### 1. open <a href="https://hunterirving.github.io/zine_workshop/">zine workshop ↗</a> in your web browser
+#### 2. use HTML to flesh out the pages
+#### 3. press ```⌘ + P``` to print an 8-page mini zine to one sheet of 8.5 x 11" legal paper
+
+<br>
 
 <a href="https://hunterirving.github.io/zine_workshop/"><img src="resources/readme_images/zines.jpeg" width="600"></a>
 
@@ -22,8 +24,7 @@ once you've printed your zine, follow this <a href="https://vabook.org/wp-conten
 </a>
 <br><br>
 
->[!TIP]
->once assembled, use a gluestick to increase your zine's structural stability (add glue to the back of the purple sections):
+once assembled, use a gluestick to increase your zine's structural stability (add glue to the back of the purple sections):
 
 <img src="resources/readme_images/glue_guide.png" width="600">
 
@@ -93,8 +94,8 @@ just use `font-family` in your CSS:
 - [GitHub Dark Theme for CodeMirror](https://github.com/fsegurai/codemirror-themes)
 
 ## licenses
-The source code in this repository is licensed under the [GNU General Public License v3.0](license) (GPLv3).  
+the source code in this repository is licensed under the [GNU General Public License v3.0](license) (GPLv3).  
 
-The included font files are not covered by the GPLv3 and are distributed under their original licenses (primarily the SIL Open Font License).
+the included font files are not covered by the GPLv3 and are distributed under their original licenses (primarily the SIL Open Font License).
 
-See individual font directories in [`resources/fonts/`](resources/fonts/) for full license details.
+see individual font directories in [`resources/fonts/`](resources/fonts/) for full license details.
