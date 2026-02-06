@@ -1,6 +1,9 @@
 # if you have a printer, you're a publisher
+
+<a href="https://hunterirving.github.io/zine_workshop/"><img src="resources/readme_images/screenshot.jpg" width="600"></a>
+
 1. open <a href="https://hunterirving.github.io/zine_workshop/">zine workshop ↗</a> in your web browser
-2. flesh out the pages using HTML
+2. use HTML to flesh out the pages
 3. press ```⌘ + P``` to print an 8-page mini zine to one sheet of 8.5 x 11" legal paper
 
 <a href="https://hunterirving.github.io/zine_workshop/"><img src="resources/readme_images/zines.jpeg" width="600"></a>
@@ -26,7 +29,8 @@ once you've printed your zine, follow this <a href="https://vabook.org/wp-conten
 
 ## built-in fonts
 
-bundled fonts are automatically available. just use `font-family` in your CSS:
+bundled fonts are automatically available.<br>
+just use `font-family` in your CSS:
 
 ```html
 <style>
@@ -36,7 +40,7 @@ bundled fonts are automatically available. just use `font-family` in your CSS:
 ```
 
 <details>
-<summary>available font families</summary>
+<summary>available font families...</summary>
 
 | font-family | variants | license |
 |-------------|----------|---------|
